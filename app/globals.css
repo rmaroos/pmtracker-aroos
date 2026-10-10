@@ -1043,12 +1043,20 @@ tbody tr:hover {
   letter-spacing: -0.6px;
 }
 
+.report-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .range-control {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }
+
 
 .range-control select {
   height: 36px;
@@ -1944,6 +1952,20 @@ tbody tr:hover {
   .results-count {
     margin-top: 2px;
   }
+
+  .report-header-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .report-header-actions .button,
+  .report-header-actions button,
+  .report-header-actions a {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 380px) {
@@ -1969,3 +1991,37 @@ tbody tr:hover {
     transition-duration: 0.01ms !important;
   }
 }
+
+@media print {
+  .sidebar,
+  .mobile-topbar,
+  .mobile-bottom-nav,
+  .mobile-drawer,
+  .mobile-backdrop,
+  .range-control,
+  .header-action,
+  .report-header-actions,
+  .filterbar,
+  .filter-pills-bar,
+  .form-notice {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .main-area {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .panel {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    break-inside: avoid;
+  }
+}
+

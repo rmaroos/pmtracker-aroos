@@ -3,7 +3,10 @@ import { PageHeader } from "@/components/app-shell";
 import { formatDate, isOverdue, todayISO } from "@/lib/utils";
 import type { Task } from "@/lib/types";
 import { Deadline, PriorityBadge, StatusBadge } from "@/components/ui";
+import { ExportPdfButton } from "@/components/pdf-export-button";
+
 function rangeDates(kind:string){const now=new Date();const d=new Date(now);const day=(d.getDay()+6)%7;const start=new Date(d);start.setDate(d.getDate()-day);const end=new Date(start);end.setDate(start.getDate()+6);if(kind==="last-week"){start.setDate(start.getDate()-7);end.setDate(end.getDate()-7)}if(kind==="month"){start.setDate(1);end.setMonth(end.getMonth()+1);end.setDate(0)}return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10)}}
+
 export default async function ReportsPage({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
   const params = await searchParams;
   const range = params.range || "this-week";
@@ -45,12 +48,29 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
         title="Reports"
         description="Review completed work and prepare a weekly update."
         action={
-          <a
-            className="button secondary"
-            href={"/api/export?from=" + dates.from + "&to=" + dates.to}
-          >
-            Export CSV
-          </a>
+          <div className="report-header-actions">
+            <ExportPdfButton
+              tasks={done}
+              dateRange={dates}
+              rangeName={range}
+              metrics={{
+                completed: done.length,
+                open: open.length,
+                overdue: overdue,
+                waiting: waiting,
+              }}
+              projectCounts={Array.from(grouped.entries()).map(([name, count]) => ({
+                name,
+                count,
+              }))}
+            />
+            <a
+              className="button secondary"
+              href={"/api/export?from=" + dates.from + "&to=" + dates.to}
+            >
+              Export CSV
+            </a>
+          </div>
         }
       />
       <div className="page-content">
