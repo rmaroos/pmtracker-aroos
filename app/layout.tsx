@@ -4,6 +4,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Personal PM Tracker",
   description: "A focused workspace for daily project work.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "PM Tracker",
+  },
 };
 
 export const viewport: Viewport = {
