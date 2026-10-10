@@ -1,0 +1,2 @@
+import { AlertMessage } from "@/components/ui";
+export function FormNotice({ error, saved }: { error?: string; saved?: string }) { if (error) return <AlertMessage kind="error">{error === "validation" ? "Check the required fields and date values." : error === "timezone" ? "Enter a valid IANA timezone, such as Asia/Colombo." : "We couldn’t save this change. Please try again."}</AlertMessage>; if (saved) return <AlertMessage kind="success">Changes saved.</AlertMessage>; return null; }

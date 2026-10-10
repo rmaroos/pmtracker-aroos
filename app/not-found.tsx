@@ -1,0 +1,1 @@
+export default function NotFound(){return <main className="error-page"><h1>We couldn’t find that record</h1><p>It may have been removed, or you may not have access to it.</p><a className="button secondary" href="/dashboard">Return to dashboard</a></main>;}

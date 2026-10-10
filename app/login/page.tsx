@@ -1,0 +1,9 @@
+import { signIn } from "@/lib/actions";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { Activity, LockKeyhole } from "lucide-react";
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  if (!isSupabaseConfigured()) return <main className="setup-wrap"><section className="setup-card"><div className="brand-mark"><Activity size={18}/></div><p className="eyebrow">PERSONAL PM TRACKER</p><h1>Set up your workspace</h1><p>Add your Supabase URL and publishable/anon key to the local environment, run the included migration, and restart the app.</p><p className="setup-note">See README.md for the full setup. No sample records are created or mixed into personal data.</p></section></main>;
+  const supabase = await createClient(); const { data: { user } } = await supabase.auth.getUser(); if (user) redirect("/dashboard");
+  const params = await searchParams; return <main className="login-wrap"><section className="login-card"><div className="brand-mark"><Activity size={18}/></div><p className="eyebrow">PERSONAL PM TRACKER</p><h1>Welcome back</h1><p className="login-copy">Sign in to your private work dashboard.</p>{params.error ? <div className="alert error">Sign-in failed. Check your email and password, then try again.</div> : null}<form action={signIn} className="form-stack"><label>Email<input name="email" type="email" required autoComplete="email" placeholder="you@example.com"/></label><label>Password<input name="password" type="password" required autoComplete="current-password"/></label><button type="submit" className="button primary full"><LockKeyhole size={16}/> Sign in</button></form><p className="login-foot">Private workspace · Your data stays scoped to your account</p></section></main>;
+}

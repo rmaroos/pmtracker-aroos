@@ -1,0 +1,3 @@
+"use client";
+import { useEffect } from "react";
+export default function AppError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) { useEffect(()=>{ console.error("Page load failed",error.digest); },[error]); return <main className="error-page"><div className="brand-mark">!</div><h1>This page couldn’t load</h1><p>Your data was not changed by this page error. Try again, or return to the dashboard.</p><div className="error-actions"><button className="button primary" onClick={()=>reset()}>Try again</button><a className="button secondary" href="/dashboard">Dashboard</a></div></main>; }

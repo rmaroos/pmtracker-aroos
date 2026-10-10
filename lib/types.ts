@@ -1,0 +1,10 @@
+export const TASK_STATUSES = ["Planned", "In Progress", "Waiting", "Completed"] as const;
+export const PRIORITIES = ["High", "Medium", "Low"] as const;
+export const CATEGORIES = ["Project Planning", "Client Follow-up", "Team Coordination", "Meeting", "Documentation", "Progress Monitoring", "Review", "Reporting", "Administration", "Other"] as const;
+export const PROJECT_STATUSES = ["Active", "On Hold", "Completed", "Archived"] as const;
+export type TaskStatus = (typeof TASK_STATUSES)[number];
+export type Priority = (typeof PRIORITIES)[number];
+export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
+export type Project = { id: string; name: string; client_name: string | null; description: string | null; status: ProjectStatus; start_date: string | null; target_end_date: string | null; notes: string | null; created_at: string; active_count?: number; overdue_count?: number };
+export type Task = { id: string; project_id: string | null; title: string; category: string; priority: Priority; status: TaskStatus; planned_date: string; deadline: string | null; notes: string | null; completed_at: string | null; created_at: string; updated_at: string; projects?: { name: string; client_name: string | null } | null };
+export type TaskInput = Pick<Task, "title" | "category" | "priority" | "status" | "planned_date" | "deadline" | "notes" | "project_id">;
