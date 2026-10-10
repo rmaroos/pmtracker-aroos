@@ -6,4 +6,126 @@ import { EmptyState } from "@/components/ui";
 import { FormNotice } from "@/components/form-error";
 import { isOverdue } from "@/lib/utils";
 import type { Project, Task } from "@/lib/types";
-export default async function ProjectsPage({ searchParams }: { searchParams: Promise<Record<string,string|string[]|undefined>> }) { const params=await searchParams; const supabase=await createClient(); const [projectRes,taskRes]=await Promise.all([supabase.from("projects").select("*").order("created_at",{ascending:false}),supabase.from("tasks").select("id,project_id,status,deadline,priority,planned_date").is("deleted_at",null)]); if(projectRes.error||taskRes.error) throw new Error("Projects could not be loaded."); const projects=(projectRes.data||[]) as unknown as Project[]; const tasks=(taskRes.data||[]) as unknown as Task[]; const q=String(params.q||"").toLowerCase().trim(); const filtered=projects.filter(p=>[p.name,p.client_name].some(v=>v?.toLowerCase().includes(q))); return <><PageHeader title="Projects" description="Keep your client projects organised." action={<Link className="button primary" href="/projects/new"><Plus size={15}/> Add project</Link>}/><div className="page-content"><FormNotice error={String(params.error||"")} saved={String(params.saved||"")}/><form className="filterbar"><label className="search-input">Search projects<input name="q" defaultValue={String(params.q||"")} placeholder="Project or client name"/></label><button className="button secondary small" type="submit">Search</button><a className="button text small" href="/projects">Clear</a></form>{filtered.length ? <div className="projects-grid">{filtered.map(p=>{const related=tasks.filter(t=>t.project_id===p.id);const active=related.filter(t=>t.status!=="Completed");const overdue=active.filter(t=>isOverdue(t));return <article className="project-card" key={p.id}><div className="project-card-top"><div><h3>{p.name}</h3><span className="client">{p.client_name||"Personal project"}</span></div><span className={p.status==="Active"?"badge info":p.status==="Completed"?"badge success":p.status==="On Hold"?"badge warning":"badge neutral"}>{p.status}</span></div><p>{p.description||"No description added."}</p><div className="project-stats"><span><b>{active.length}</b> active</span><span><b>{overdue.length}</b> overdue</span><span><b>{related.length-active.length}</b> completed</span><Link className="project-edit" href={"/projects/"+p.id}>Edit <FolderKanban size={12}/></Link></div></article>})}</div>:<section className="panel"><EmptyState title={q?"No projects found":"No projects yet"} detail={q?"Try another project or client name.":"Create a project to keep client work consistently labelled."} href={q?"/projects":"/projects/new"} action={q?"View all":"Add project"}/></section>}</div></>; }
+export default async function ProjectsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const supabase = await createClient();
+  const [projectRes, taskRes] = await Promise.all([
+    supabase.from("projects").select("*").order("created_at", { ascending: false }),
+    supabase
+      .from("tasks")
+      .select("id,project_id,status,deadline,priority,planned_date")
+      .is("deleted_at", null),
+  ]);
+
+  if (projectRes.error || taskRes.error)
+    throw new Error("Projects could not be loaded.");
+
+  const projects = (projectRes.data || []) as unknown as Project[];
+  const tasks = (taskRes.data || []) as unknown as Task[];
+  const q = String(params.q || "").toLowerCase().trim();
+  const filtered = projects.filter((p) =>
+    [p.name, p.client_name].some((v) => v?.toLowerCase().includes(q))
+  );
+
+  return (
+    <>
+      <PageHeader
+        title="Projects"
+        description="Keep your client projects organised."
+        action={
+          <Link className="button primary" href="/projects/new">
+            <Plus size={15} /> Add project
+          </Link>
+        }
+      />
+      <div className="page-content">
+        <FormNotice error={String(params.error || "")} saved={String(params.saved || "")} />
+        <form className="filterbar">
+          <label className="search-input">
+            Search projects
+            <input
+              name="q"
+              defaultValue={String(params.q || "")}
+              placeholder="Project or client name"
+            />
+          </label>
+          <div className="filter-btn-group">
+            <button className="button secondary small" type="submit">
+              Search
+            </button>
+            <a className="button text small" href="/projects">
+              Clear
+            </a>
+          </div>
+        </form>
+        {filtered.length ? (
+          <div className="projects-grid">
+            {filtered.map((p) => {
+              const related = tasks.filter((t) => t.project_id === p.id);
+              const active = related.filter((t) => t.status !== "Completed");
+              const overdue = active.filter((t) => isOverdue(t));
+              return (
+                <article className="project-card" key={p.id}>
+                  <div className="project-card-top">
+                    <div>
+                      <h3>{p.name}</h3>
+                      <span className="client">{p.client_name || "Personal project"}</span>
+                    </div>
+                    <span
+                      className={
+                        p.status === "Active"
+                          ? "badge info"
+                          : p.status === "Completed"
+                          ? "badge success"
+                          : p.status === "On Hold"
+                          ? "badge warning"
+                          : "badge neutral"
+                      }
+                    >
+                      {p.status}
+                    </span>
+                  </div>
+                  <p>{p.description || "No description added."}</p>
+                  <div className="project-stats">
+                    <div className="project-stat-pills">
+                      <span className="stat-pill">
+                        <b>{active.length}</b> active
+                      </span>
+                      <span className={`stat-pill ${overdue.length ? "stat-danger" : ""}`}>
+                        <b>{overdue.length}</b> overdue
+                      </span>
+                      <span className="stat-pill">
+                        <b>{related.length - active.length}</b> done
+                      </span>
+                    </div>
+                    <Link className="project-edit" href={"/projects/" + p.id}>
+                      Edit <FolderKanban size={13} />
+                    </Link>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <section className="panel">
+            <EmptyState
+              title={q ? "No projects found" : "No projects yet"}
+              detail={
+                q
+                  ? "Try another project or client name."
+                  : "Create a project to keep client work consistently labelled."
+              }
+              href={q ? "/projects" : "/projects/new"}
+              action={q ? "View all" : "Add project"}
+            />
+          </section>
+        )}
+      </div>
+    </>
+  );
+}
+

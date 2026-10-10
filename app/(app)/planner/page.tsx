@@ -14,5 +14,112 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
  if (status) tasks = tasks.filter(t => t.status === status); if (priority) tasks = tasks.filter(t => t.priority === priority); if (project) tasks = tasks.filter(t => t.project_id === project);
  if (overdue === "1") tasks = tasks.filter(t => isOverdue(t,today)); if (planned === "today") tasks = tasks.filter(t => t.planned_date === today); if (planned === "upcoming") tasks = tasks.filter(t => t.planned_date >= today && t.planned_date <= new Date(Date.now()+7*86400000).toISOString().slice(0,10)); if (planned && planned !== "today" && planned !== "upcoming") tasks = tasks.filter(t=>t.planned_date===planned);
  tasks = sortUrgency(tasks);
- return <><PageHeader title="Daily Planner" description="Plan your work, update progress, and keep deadlines visible." action={<Link className="button primary" href="/planner/new"><Plus size={15}/> Add task</Link>}/><div className="page-content"><FormNotice error={String(params.error||"")} saved={String(params.saved||"")}/><form className="filterbar"><label className="search-input">Search<input name="q" defaultValue={String(params.q||"")} placeholder="Task, project, client…"/></label><label>Project<select name="project" defaultValue={project}><option value="">All projects</option>{projects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label><label>Status<select name="status" defaultValue={status}><option value="">All statuses</option>{["Planned","In Progress","Waiting"].map(s=><option key={s}>{s}</option>)}</select></label><label>Priority<select name="priority" defaultValue={priority}><option value="">All priorities</option>{["High","Medium","Low"].map(s=><option key={s}>{s}</option>)}</select></label><label>Planned date<input name="planned" type="date" defaultValue={planned !== "today" && planned !== "upcoming" ? planned : ""}/></label><button className="button secondary small" type="submit"><Search size={14}/> Filter</button><Link className="button text small" href="/planner"><X size={14}/> Clear</Link></form><div className="section-title"><div><h2>Active tasks</h2><p>{tasks.length} {tasks.length === 1 ? "task" : "tasks"} · Urgent work is sorted first</p></div></div><section className="panel"><TaskTable tasks={tasks}/></section></div></>;
+  const quickFilters = [
+    { label: "All", href: "/planner", active: !status && !priority && !overdue && !planned && !q },
+    { label: "Today", href: "/planner?planned=today", active: planned === "today" },
+    { label: "Overdue", href: "/planner?overdue=1", active: overdue === "1" },
+    { label: "High Priority", href: "/planner?priority=High", active: priority === "High" },
+    { label: "In Progress", href: "/planner?status=In+Progress", active: status === "In Progress" },
+    { label: "Waiting", href: "/planner?status=Waiting", active: status === "Waiting" },
+  ];
+
+  return (
+    <>
+      <PageHeader
+        title="Daily Planner"
+        description="Plan your work, update progress, and keep deadlines visible."
+        action={
+          <Link className="button primary" href="/planner/new">
+            <Plus size={15} /> Add task
+          </Link>
+        }
+      />
+      <div className="page-content">
+        <FormNotice error={String(params.error || "")} saved={String(params.saved || "")} />
+
+        {/* Quick Filter Pills (Especially great on mobile) */}
+        <div className="filter-pills-bar">
+          {quickFilters.map((f) => (
+            <Link
+              key={f.label}
+              href={f.href}
+              className={`filter-pill ${f.active ? "active" : ""}`}
+            >
+              {f.label}
+            </Link>
+          ))}
+        </div>
+
+        <form className="filterbar">
+          <label className="search-input">
+            Search
+            <input
+              name="q"
+              defaultValue={String(params.q || "")}
+              placeholder="Task, project, client…"
+            />
+          </label>
+          <label>
+            Project
+            <select name="project" defaultValue={project}>
+              <option value="">All projects</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Status
+            <select name="status" defaultValue={status}>
+              <option value="">All statuses</option>
+              {["Planned", "In Progress", "Waiting"].map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Priority
+            <select name="priority" defaultValue={priority}>
+              <option value="">All priorities</option>
+              {["High", "Medium", "Low"].map((p) => (
+                <option key={p}>{p}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Planned date
+            <input
+              name="planned"
+              type="date"
+              defaultValue={planned !== "today" && planned !== "upcoming" ? planned : ""}
+            />
+          </label>
+          <div className="filter-btn-group">
+            <button className="button secondary small" type="submit">
+              <Search size={14} /> Filter
+            </button>
+            <Link className="button text small" href="/planner">
+              <X size={14} /> Clear
+            </Link>
+          </div>
+        </form>
+
+        <div className="section-title">
+          <div>
+            <h2>Active tasks</h2>
+            <p>
+              {tasks.length} {tasks.length === 1 ? "task" : "tasks"} · Urgent work is sorted first
+            </p>
+          </div>
+        </div>
+
+        <section className="panel">
+          <TaskTable tasks={tasks} />
+        </section>
+      </div>
+    </>
+  );
 }
+
