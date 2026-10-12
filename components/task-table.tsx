@@ -3,7 +3,8 @@ import { ArrowUpRight, Calendar, Pencil, RotateCcw } from "lucide-react";
 import { formatDate, isOverdue } from "@/lib/utils";
 import type { Task } from "@/lib/types";
 import { Deadline, PriorityBadge, StatusBadge, EmptyState } from "@/components/ui";
-import { setTaskStatus } from "@/lib/actions";
+import { setTaskStatus, deleteTask } from "@/lib/actions";
+import { DeleteButton } from "@/components/delete-button";
 
 export function TaskTable({ tasks, history = false }: { tasks: Task[]; history?: boolean }) {
   if (!tasks.length) {
@@ -81,6 +82,14 @@ export function TaskTable({ tasks, history = false }: { tasks: Task[]; history?:
                       <Pencil size={14} />
                     </Link>
                   )}
+                  <DeleteButton
+                    id={task.id}
+                    title={task.title}
+                    itemType="task"
+                    action={deleteTask}
+                    redirectTo={history ? "/history?deleted=1" : "/planner?deleted=1"}
+                    variant="icon"
+                  />
                 </div>
               </div>
             </div>
@@ -135,23 +144,33 @@ export function TaskTable({ tasks, history = false }: { tasks: Task[]; history?:
                   <Deadline task={task} />
                 </td>
                 <td className="actions-col">
-                  {history ? (
-                    <form action={setTaskStatus}>
-                      <input type="hidden" name="id" value={task.id} />
-                      <input type="hidden" name="status" value="Planned" />
-                      <button className="button text small" type="submit">
-                        Reopen
-                      </button>
-                    </form>
-                  ) : (
-                    <Link
-                      className="icon-button"
-                      aria-label="Edit task"
-                      href={"/planner/" + task.id}
-                    >
-                      <Pencil size={15} />
-                    </Link>
-                  )}
+                  <div className="table-actions">
+                    {history ? (
+                      <form action={setTaskStatus}>
+                        <input type="hidden" name="id" value={task.id} />
+                        <input type="hidden" name="status" value="Planned" />
+                        <button className="button text small" type="submit">
+                          Reopen
+                        </button>
+                      </form>
+                    ) : (
+                      <Link
+                        className="icon-button"
+                        aria-label="Edit task"
+                        href={"/planner/" + task.id}
+                      >
+                        <Pencil size={15} />
+                      </Link>
+                    )}
+                    <DeleteButton
+                      id={task.id}
+                      title={task.title}
+                      itemType="task"
+                      action={deleteTask}
+                      redirectTo={history ? "/history?deleted=1" : "/planner?deleted=1"}
+                      variant="icon"
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

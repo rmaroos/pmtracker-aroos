@@ -6,6 +6,8 @@ import { EmptyState } from "@/components/ui";
 import { FormNotice } from "@/components/form-error";
 import { isOverdue } from "@/lib/utils";
 import type { Project, Task } from "@/lib/types";
+import { deleteProject } from "@/lib/actions";
+import { DeleteButton } from "@/components/delete-button";
 export default async function ProjectsPage({
   searchParams,
 }: {
@@ -43,7 +45,11 @@ export default async function ProjectsPage({
         }
       />
       <div className="page-content">
-        <FormNotice error={String(params.error || "")} saved={String(params.saved || "")} />
+        <FormNotice
+          error={String(params.error || "")}
+          saved={String(params.saved || "")}
+          deleted={String(params.deleted || "")}
+        />
         <form className="filterbar">
           <label className="search-input">
             Search projects
@@ -102,9 +108,26 @@ export default async function ProjectsPage({
                         <b>{related.length - active.length}</b> done
                       </span>
                     </div>
-                    <Link className="project-edit" href={"/projects/" + p.id}>
-                      Edit <FolderKanban size={13} />
-                    </Link>
+                    <div className="project-card-actions">
+                      <Link className="project-edit" href={"/projects/" + p.id}>
+                        Edit <FolderKanban size={13} />
+                      </Link>
+                      <DeleteButton
+                        id={p.id}
+                        title={p.name}
+                        itemType="project"
+                        action={deleteProject}
+                        redirectTo="/projects?deleted=1"
+                        extraInfo={
+                          related.length > 0
+                            ? `This project has ${related.length} linked task${
+                                related.length > 1 ? "s" : ""
+                              }. Deleting it will unassign these tasks.`
+                            : undefined
+                        }
+                        variant="project-link"
+                      />
+                    </div>
                   </div>
                 </article>
               );

@@ -61,3 +61,56 @@ export async function saveSettings(formData: FormData) {
   const { error } = await supabase.from("profiles").upsert({ id: user.id, display_name: displayName || null, timezone, updated_at: new Date().toISOString() });
   if (error) redirect("/settings?error=save"); revalidatePath("/", "layout"); redirect("/settings?saved=1");
 }
+
+export async function deleteTask(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const redirectTo = String(formData.get("redirectTo") || "/planner?deleted=1");
+  if (!id) redirect("/planner?error=validation");
+
+  const { supabase, user } = await requireUser();
+  const { error } = await supabase
+    .from("tasks")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    const fallback = redirectTo.startsWith("/") ? redirectTo : "/planner";
+    redirect(fallback + (fallback.includes("?") ? "&" : "?") + "error=delete");
+  }
+
+  revalidatePath("/", "layout");
+  redirect(redirectTo);
+}
+
+export async function deleteProject(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const redirectTo = String(formData.get("redirectTo") || "/projects?deleted=1");
+  if (!id) redirect("/projects?error=validation");
+
+  const { supabase, user } = await requireUser();
+
+  // Unlink associated tasks before deleting project so foreign keys and RLS allow deletion
+  const { error: unassignError } = await supabase
+    .from("tasks")
+    .update({ project_id: null })
+    .eq("project_id", id)
+    .eq("user_id", user.id);
+
+  if (unassignError) {
+    redirect("/projects?error=delete");
+  }
+
+  const { error } = await supabase
+    .from("projects")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    redirect("/projects?error=delete");
+  }
+
+  revalidatePath("/", "layout");
+  redirect(redirectTo);
+}

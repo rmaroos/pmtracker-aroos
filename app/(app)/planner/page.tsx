@@ -35,7 +35,11 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
         }
       />
       <div className="page-content">
-        <FormNotice error={String(params.error || "")} saved={String(params.saved || "")} />
+        <FormNotice
+          error={String(params.error || "")}
+          saved={String(params.saved || "")}
+          deleted={String(params.deleted || "")}
+        />
 
         {/* Quick Filter Pills (Especially great on mobile) */}
         <div className="filter-pills-bar">

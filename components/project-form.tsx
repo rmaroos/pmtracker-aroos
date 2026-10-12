@@ -1,6 +1,100 @@
-import { createProject, updateProject } from "@/lib/actions";
+import { createProject, updateProject, deleteProject } from "@/lib/actions";
 import { PROJECT_STATUSES, type Project } from "@/lib/types";
+import { DeleteButton } from "@/components/delete-button";
+
 export function ProjectForm({ project }: { project?: Project }) {
- const action = project ? updateProject : createProject;
- return <form action={action} className="form-card">{project ? <input type="hidden" name="id" value={project.id}/> : null}<div className="form-section"><p className="section-eyebrow">PROJECT DETAILS</p><div className="field-grid"><label>Project name <em>*</em><input name="name" required maxLength={160} defaultValue={project?.name || ""} placeholder="e.g. Website refresh"/></label><label>Client name<input name="client_name" maxLength={160} defaultValue={project?.client_name || ""} placeholder="Client or organisation"/></label><label>Status<select name="status" defaultValue={project?.status || "Active"}>{PROJECT_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}</select></label><label>Start date<input name="start_date" type="date" defaultValue={project?.start_date || ""}/></label><label>Target end date<input name="target_end_date" type="date" defaultValue={project?.target_end_date || ""}/></label><label className="span-2">Description<textarea name="description" rows={3} maxLength={3000} defaultValue={project?.description || ""}/></label><label className="span-2">Notes<textarea name="notes" rows={3} maxLength={5000} defaultValue={project?.notes || ""}/></label></div></div><div className="form-footer"><a className="button secondary" href="/projects">Cancel</a><button className="button primary" type="submit">{project ? "Save changes" : "Create project"}</button></div></form>;
+  const action = project ? updateProject : createProject;
+  return (
+    <form action={action} className="form-card">
+      {project ? <input type="hidden" name="id" value={project.id} /> : null}
+      <div className="form-section">
+        <p className="section-eyebrow">PROJECT DETAILS</p>
+        <div className="field-grid">
+          <label>
+            Project name <em>*</em>
+            <input
+              name="name"
+              required
+              maxLength={160}
+              defaultValue={project?.name || ""}
+              placeholder="e.g. Website refresh"
+            />
+          </label>
+          <label>
+            Client name
+            <input
+              name="client_name"
+              maxLength={160}
+              defaultValue={project?.client_name || ""}
+              placeholder="Client or organisation"
+            />
+          </label>
+          <label>
+            Status
+            <select name="status" defaultValue={project?.status || "Active"}>
+              {PROJECT_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Start date
+            <input
+              name="start_date"
+              type="date"
+              defaultValue={project?.start_date || ""}
+            />
+          </label>
+          <label>
+            Target end date
+            <input
+              name="target_end_date"
+              type="date"
+              defaultValue={project?.target_end_date || ""}
+            />
+          </label>
+          <label className="span-2">
+            Description
+            <textarea
+              name="description"
+              rows={3}
+              maxLength={3000}
+              defaultValue={project?.description || ""}
+            />
+          </label>
+          <label className="span-2">
+            Notes
+            <textarea
+              name="notes"
+              rows={3}
+              maxLength={5000}
+              defaultValue={project?.notes || ""}
+            />
+          </label>
+        </div>
+      </div>
+      <div className={`form-footer ${project ? "form-footer-between" : ""}`}>
+        {project ? (
+          <DeleteButton
+            id={project.id}
+            title={project.name}
+            itemType="project"
+            action={deleteProject}
+            redirectTo="/projects?deleted=1"
+            variant="button"
+          />
+        ) : null}
+        <div className="form-footer-right">
+          <a className="button secondary" href="/projects">
+            Cancel
+          </a>
+          <button className="button primary" type="submit">
+            {project ? "Save changes" : "Create project"}
+          </button>
+        </div>
+      </div>
+    </form>
+  );
 }
